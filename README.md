@@ -58,3 +58,37 @@ npm run dev
 ```bash
 npm run cleanup:uploads
 ```
+
+## Python API (FastAPI)
+
+You can run chat inference through Python and let Next.js proxy to it.
+
+1. Install Python dependencies
+```bash
+pip install -r requirements.txt
+```
+
+2. Set env values in `.env`
+```env
+OPENAI_API_KEY=sk-...
+PYTHON_API_URL=http://127.0.0.1:8000
+```
+
+3. Run Python API server
+```bash
+uvicorn python.chat_api:app --host 127.0.0.1 --port 8000 --reload
+```
+
+4. Run Next.js app
+```bash
+npm run dev
+```
+
+5. Optional API key sanity test (Python)
+```bash
+python python/chat_test.py
+```
+
+Notes:
+- If `PYTHON_API_URL` is set, `app/api/chat` calls Python first.
+- If `PYTHON_API_URL` is empty, `app/api/chat` falls back to direct Node OpenAI call.
