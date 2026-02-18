@@ -13,8 +13,11 @@ export function SiteHeader() {
           </div>
         </Link>
         <nav className="flex items-center gap-2">
+          <Link className="btn-secondary" href="/chat">
+            Chat MVP
+          </Link>
           <Link className="btn-secondary" href="/case/new">
-            새 케이스
+            New Case
           </Link>
         </nav>
       </div>

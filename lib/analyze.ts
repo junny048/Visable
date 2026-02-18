@@ -33,7 +33,7 @@ const qaSchema = z.object({
   ),
   actionItems: z.array(
     z.object({
-      priority: z.number().int().min(1).max(5),
+      priority: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]),
       title: z.string(),
       steps: z.array(z.string())
     })

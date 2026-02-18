@@ -1,11 +1,11 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, Suspense, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { caseCards, caseQuestions } from "@/lib/case-config";
 import { CaseType, Direction } from "@/lib/types";
 
-export default function NewCasePage() {
+function NewCaseForm() {
   const router = useRouter();
   const params = useSearchParams();
   const initialDirection = (params.get("direction") as Direction) || "KR_TO_US";
@@ -21,10 +21,7 @@ export default function NewCasePage() {
   const [extra, setExtra] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
-  const filteredCases = useMemo(
-    () => caseCards.filter((c) => c.direction === direction),
-    [direction]
-  );
+  const filteredCases = useMemo(() => caseCards.filter((c) => c.direction === direction), [direction]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -39,18 +36,20 @@ export default function NewCasePage() {
       })
     });
     setLoading(false);
+
     if (!res.ok) {
-      alert("케이스 생성에 실패했습니다.");
+      alert("Case creation failed.");
       return;
     }
+
     const data = (await res.json()) as { id: string };
     router.push(`/case/${data.id}/upload`);
   }
 
   return (
     <div className="panel p-6 md:p-8">
-      <h1 className="text-2xl font-bold text-slate-900">케이스 생성</h1>
-      <p className="mt-1 text-sm text-slate-600">방향/케이스 타입과 기본 정보를 입력하세요.</p>
+      <h1 className="text-2xl font-bold text-slate-900">Create Case</h1>
+      <p className="mt-1 text-sm text-slate-600">Select route/case type and enter basic information.</p>
 
       <form className="mt-6 space-y-4" onSubmit={onSubmit}>
         <div className="grid gap-4 md:grid-cols-2">
@@ -84,36 +83,36 @@ export default function NewCasePage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-1">
-            <span className="text-sm font-medium">출국/입국 예정일</span>
+            <span className="text-sm font-medium">Travel Date</span>
             <input className="input" type="date" value={travelDate} onChange={(e) => setTravelDate(e.target.value)} required />
           </label>
           <label className="space-y-1">
-            <span className="text-sm font-medium">체류 기간(예정)</span>
-            <input className="input" value={stayDuration} onChange={(e) => setStayDuration(e.target.value)} placeholder="예: 6개월" required />
+            <span className="text-sm font-medium">Planned Stay Duration</span>
+            <input className="input" value={stayDuration} onChange={(e) => setStayDuration(e.target.value)} placeholder="e.g. 6 months" required />
           </label>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-1">
-            <span className="text-sm font-medium">여권 만료일</span>
+            <span className="text-sm font-medium">Passport Expiry Date</span>
             <input className="input" type="date" value={passportExpiry} onChange={(e) => setPassportExpiry(e.target.value)} required />
           </label>
           <label className="space-y-1">
-            <span className="text-sm font-medium">직업</span>
+            <span className="text-sm font-medium">Occupation</span>
             <input className="input" value={occupation} onChange={(e) => setOccupation(e.target.value)} required />
           </label>
         </div>
 
         <label className="space-y-1">
-          <span className="text-sm font-medium">동반가족 유무</span>
-          <select className="input" value={withFamily} onChange={(e) => setWithFamily(e.target.value as "YES" | "NO")}>
-            <option value="NO">없음</option>
-            <option value="YES">있음</option>
+          <span className="text-sm font-medium">With Family</span>
+          <select className="input" value={withFamily} onChange={(e) => setWithFamily(e.target.value as "YES" | "NO") }>
+            <option value="NO">No</option>
+            <option value="YES">Yes</option>
           </select>
         </label>
 
         <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
-          <p className="text-sm font-semibold text-blue-800">케이스별 추가 질문</p>
+          <p className="text-sm font-semibold text-blue-800">Case-specific Questions</p>
           <div className="mt-3 grid gap-3">
             {(caseQuestions[caseType] ?? []).map((q, i) => {
               const key = `q${i}`;
@@ -134,10 +133,18 @@ export default function NewCasePage() {
 
         <div className="pt-2">
           <button className="btn" type="submit" disabled={loading}>
-            {loading ? "생성 중..." : "케이스 생성"}
+            {loading ? "Creating..." : "Create Case"}
           </button>
         </div>
       </form>
     </div>
+  );
+}
+
+export default function NewCasePage() {
+  return (
+    <Suspense fallback={<div className="panel p-6 text-sm text-slate-600">Loading form...</div>}>
+      <NewCaseForm />
+    </Suspense>
   );
 }
