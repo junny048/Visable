@@ -13,6 +13,9 @@ export function SiteHeader() {
           </div>
         </Link>
         <nav className="flex items-center gap-2">
+          <Link className="btn-secondary" href="/visa-guides">
+            Visa Guides
+          </Link>
           <Link className="btn-secondary" href="/chat">
             Chat MVP
           </Link>
